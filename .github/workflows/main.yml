@@ -15,10 +15,10 @@ jobs:
 
         steps:
             - name: Checkout code
-              uses: actions/checkout@v2
+              uses: actions/checkout@v4
 
             - name: Set up Go
-              uses: actions/setup-go@v2
+              uses: actions/setup-go@v4
               with:
                   go-version: "^1.22.1"
 
@@ -46,9 +46,14 @@ jobs:
                   GOOS=freebsd GOARCH=amd64 go build -ldflags="-s -w" -o tgpt-freebsd-amd64
                   GOOS=freebsd GOARCH=arm64 go build -ldflags="-s -w" -o tgpt-freebsd-arm64
                   GOOS=freebsd GOARCH=arm go build -ldflags="-s -w" -o tgpt-freebsd-arm
-                  GOOS=freebsd GOARCH=386 go build -ldflags="-s -w" -o tgpt-freebsd-i386   
+                  GOOS=freebsd GOARCH=386 go build -ldflags="-s -w" -o tgpt-freebsd-i386
 
-                  echo "## Changelog:" >> ${{ github.workspace }}-CHANGELOG.txt    
+                  GOOS=openbsd GOARCH=amd64 go build -ldflags="-s -w" -o tgpt-openbsd-amd64
+                  GOOS=openbsd GOARCH=arm64 go build -ldflags="-s -w" -o tgpt-openbsd-arm64
+                  GOOS=openbsd GOARCH=arm go build -ldflags="-s -w" -o tgpt-openbsd-arm
+                  GOOS=openbsd GOARCH=386 go build -ldflags="-s -w" -o tgpt-openbsd-i386
+
+                  echo "## Changelog:" >> ${{ github.workspace }}-CHANGELOG.txt
 
                   echo "<details><summary>SHA256 Hashes</summary><code>" >> ${{ github.workspace }}-CHANGELOG.txt      
 
@@ -79,7 +84,53 @@ jobs:
                   sha256sum tgpt-mac-arm64
                   sha256sum tgpt-mac-arm64 >> ${{ github.workspace }}-CHANGELOG.txt
 
+                  sha256sum tgpt-arm.exe
+                  sha256sum tgpt-arm.exe >> ${{ github.workspace }}-CHANGELOG.txt
+
+                  sha256sum tgpt-arm64.exe
+                  sha256sum tgpt-arm64.exe >> ${{ github.workspace }}-CHANGELOG.txt
+
+                  sha256sum tgpt-netbsd-amd64
+                  sha256sum tgpt-netbsd-amd64 >> ${{ github.workspace }}-CHANGELOG.txt
+
+                  sha256sum tgpt-netbsd-arm64
+                  sha256sum tgpt-netbsd-arm64 >> ${{ github.workspace }}-CHANGELOG.txt
+
+                  sha256sum tgpt-netbsd-arm
+                  sha256sum tgpt-netbsd-arm >> ${{ github.workspace }}-CHANGELOG.txt
+
+                  sha256sum tgpt-netbsd-i386
+                  sha256sum tgpt-netbsd-i386 >> ${{ github.workspace }}-CHANGELOG.txt
+
+                  sha256sum tgpt-freebsd-amd64
+                  sha256sum tgpt-freebsd-amd64 >> ${{ github.workspace }}-CHANGELOG.txt
+
+                  sha256sum tgpt-freebsd-arm64
+                  sha256sum tgpt-freebsd-arm64 >> ${{ github.workspace }}-CHANGELOG.txt
+
+                  sha256sum tgpt-freebsd-arm
+                  sha256sum tgpt-freebsd-arm >> ${{ github.workspace }}-CHANGELOG.txt
+
+                  sha256sum tgpt-freebsd-i386
+                  sha256sum tgpt-freebsd-i386 >> ${{ github.workspace }}-CHANGELOG.txt
+
+                  sha256sum tgpt-openbsd-amd64
+                  sha256sum tgpt-openbsd-amd64 >> ${{ github.workspace }}-CHANGELOG.txt
+
+                  sha256sum tgpt-openbsd-arm64
+                  sha256sum tgpt-openbsd-arm64 >> ${{ github.workspace }}-CHANGELOG.txt
+
+                  sha256sum tgpt-openbsd-arm
+                  sha256sum tgpt-openbsd-arm >> ${{ github.workspace }}-CHANGELOG.txt
+
+                  sha256sum tgpt-openbsd-i386
+                  sha256sum tgpt-openbsd-i386 >> ${{ github.workspace }}-CHANGELOG.txt
+
                   echo "</code></details>" >> ${{ github.workspace }}-CHANGELOG.txt
+
+            - name: Get version
+              id: get-version
+              run: echo "version=$(jq -r '.version' version.txt)" >> $GITHUB_OUTPUT
 
             - name: Upload Artifacts
               id: upload-artifacts
@@ -111,7 +162,7 @@ jobs:
                       
                   token: ${{ secrets.GITHUB_TOKEN }}
                   draft: true
-                  tag_name: v
+                  tag_name: v${{ steps.get-version.outputs.version }}
                   name: tgpt
                   body_path: ${{ github.workspace }}-CHANGELOG.txt
 
